@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MY VIDEO STORE</title>
+  <link rel="icon" type="image/png" href="/static/images/movies.png" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Bebas+Neue&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+  <!-- CRT scanline overlay -->
+  <div class="crt-overlay" aria-hidden="true"></div>
+
+  <!-- ===== HEADER ===== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-logo">
+        <span class="logo-icon">🎬</span>
+        <span class="logo-text">MY VIDEO STORE</span>
+      </div>
+      <div class="header-tagline">BE KIND, REWIND</div>
+    </div>
+  </header>
+
+  <!-- ===== STATS BAR ===== -->
+  <div class="stats-bar" id="statsBar">
+    <span id="statCount"><i class="fa fa-film"></i> — películas</span>
+    <span class="stats-sep">|</span>
+    <span id="statShowing"><i class="fa fa-eye"></i> Mostrando: —</span>
+    <span class="stats-sep">|</span>
+    <span id="statAvg"><i class="fa fa-star"></i> Rating medio: —</span>
+    <span class="stats-sep">|</span>
+    <span id="statYears"><i class="fa fa-calendar"></i> —</span>
+  </div>
+
+  <!-- ===== FILTER BAR ===== -->
+  <div class="filter-bar" id="filterBar">
+    <div class="filter-group filter-search">
+      <label for="searchInput"><i class="fa fa-search"></i> BUSCAR</label>
+      <input type="text" id="searchInput" placeholder="Título, director..." autocomplete="off" />
+    </div>
+
+    <div class="filter-group">
+      <label for="genreSelect"><i class="fa fa-tags"></i> GÉNERO</label>
+      <select id="genreSelect">
+        <option value="">Todos</option>
+      </select>
+    </div>
+
+    <div class="filter-group filter-years">
+      <label><i class="fa fa-calendar-alt"></i> AÑO</label>
+      <div class="year-inputs">
+        <input type="number" id="yearFrom" placeholder="Desde" min="1960" max="2026" />
+        <span>—</span>
+        <input type="number" id="yearTo" placeholder="Hasta" min="1960" max="2026" />
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <label for="minRating"><i class="fa fa-star"></i> TU RATING ≥</label>
+      <select id="minRating">
+        <option value="0">Todos</option>
+        <option value="6">6+</option>
+        <option value="7">7+</option>
+        <option value="8">8+</option>
+        <option value="9">9+</option>
+        <option value="10">10</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label for="sortSelect"><i class="fa fa-sort"></i> ORDENAR</label>
+      <select id="sortSelect">
+        <option value="position">Posición</option>
+        <option value="title">Título A-Z</option>
+        <option value="year_desc">Año (nuevas)</option>
+        <option value="year_asc">Año (antiguas)</option>
+        <option value="imdb_desc">IMDb rating ↓</option>
+        <option value="your_desc">Tu rating ↓</option>
+        <option value="rated_desc">Fecha vista</option>
+      </select>
+    </div>
+
+    <button class="btn-reset hidden" id="btnReset" title="Limpiar filtros">
+      <i class="fa fa-times-circle"></i> RESET
+    </button>
+  </div>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="main-content">
+    <div class="movie-grid" id="movieGrid">
+      <!-- Cards injected by JS -->
+    </div>
+    <div id="sentinel" style="height: 10px;"></div>
+    <div class="no-results hidden" id="noResults">
+      <i class="fa fa-video-slash"></i>
+      <p>NO HAY RESULTADOS</p>
+      <small>Prueba con otros filtros</small>
+    </div>
+  </main>
+
+  <!-- ===== MOVIE DETAIL MODAL ===== -->
+  <div class="modal-backdrop hidden" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-box" id="modalBox">
+      <button class="modal-close" id="modalClose" aria-label="Cerrar"><i class="fa fa-times"></i></button>
+
+      <div class="modal-content">
+        <div class="modal-poster-col">
+          <div class="modal-poster-wrap">
+            <img id="modalPoster" src="" alt="" />
+            <div class="vhs-label">
+              <span id="modalVhsTitle"></span>
+            </div>
+          </div>
+          <div class="modal-vhs-side">
+            <div class="vhs-spine">
+              <span id="modalSpineTitle"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-info-col">
+          <div class="modal-badge" id="modalBadge">PELÍCULA</div>
+          <h2 class="modal-title" id="modalTitle"></h2>
+          <p class="modal-original-title" id="modalOriginalTitle"></p>
+
+          <p class="modal-description hidden" id="modalDescription"></p>
+
+          <div class="modal-meta">
+            <div class="meta-row">
+              <span class="meta-label"><i class="fa fa-user-tie"></i> Director</span>
+              <span class="meta-value" id="modalDirector"></span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label"><i class="fa fa-users"></i> Actores</span>
+              <span class="meta-value" id="modalActors"></span>
+            </div>
+            <div class="meta-row" id="modalProvidersRow">
+              <span class="meta-label"><i class="fa fa-tv"></i> Disponible en</span>
+              <span class="meta-value" id="modalProviders"></span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label"><i class="fa fa-calendar"></i> Año</span>
+              <span class="meta-value" id="modalYear"></span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label"><i class="fa fa-clock"></i> Duración</span>
+              <span class="meta-value" id="modalRuntime"></span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label"><i class="fa fa-tags"></i> Géneros</span>
+              <span class="meta-value" id="modalGenres"></span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-label"><i class="fa fa-calendar-check"></i> Vista el</span>
+              <span class="meta-value" id="modalDateRated"></span>
+            </div>
+          </div>
+
+          <div class="modal-ratings">
+            <div class="rating-block rating-imdb">
+              <div class="rating-label">IMDb</div>
+              <div class="rating-value" id="modalImdbRating"></div>
+              <div class="rating-votes" id="modalVotes"></div>
+            </div>
+            <div class="rating-block rating-yours">
+              <div class="rating-label">TU NOTA</div>
+              <div class="rating-stars" id="modalYourStars"></div>
+              <div class="rating-value" id="modalYourRating"></div>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <a class="btn-imdb" id="modalImdbLink" href="#" target="_blank" rel="noopener">
+              <i class="fa fa-external-link-alt"></i> Ver en IMDb
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CHAT SIDEBAR ===== -->
+  <button class="chat-toggle" id="chatToggle" title="Abrir asistente de películas">
+    <i class="fa fa-robot"></i>
+    <span class="chat-toggle-label">CHAT</span>
+  </button>
+
+  <div class="chat-sidebar hidden" id="chatSidebar" role="complementary" aria-label="Chat de películas">
+    <div class="chat-header">
+      <span class="chat-header-icon"><i class="fa fa-robot"></i></span>
+      <span class="chat-header-title">FILM ASSISTANT v1.0</span>
+      <button class="chat-close" id="chatClose" aria-label="Cerrar chat"><i class="fa fa-times"></i></button>
+    </div>
+
+    <div class="chat-terminal-bar">
+      <span class="term-dot term-red"></span>
+      <span class="term-dot term-yellow"></span>
+      <span class="term-dot term-green"></span>
+      <span class="term-bar-title">terminal@videostore:~$</span>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-msg assistant">
+        <span class="msg-prefix">&gt;&gt; </span>
+        Hola! Soy tu asistente de videoclub. Pregúntame sobre tu colección, pídeme recomendaciones o charlemos de cine. 🎬
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <span class="chat-prompt">$&gt;</span>
+      <input type="text" id="chatInput" placeholder="Escribe un mensaje..." autocomplete="off" />
+      <button class="chat-send" id="chatSend" aria-label="Enviar">
+        <i class="fa fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

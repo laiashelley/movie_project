@@ -1,0 +1,12 @@
+[
+  {
+    "timestamp": "2026-06-26T17:53:28.903029",
+    "role": "user",
+    "content": "Hola que tal?"
+  },
+  {
+    "timestamp": "2026-06-26T17:53:28.903029",
+    "role": "assistant",
+    "content": "¡Hola! ¡Todo bien, gracias! Estoy aquí para hablar de cine y ayudarte a descubrir más sobre tus películas. ¿Qué película o tema tienes en mente hoy? 🍿🎬"
+  }
+]
